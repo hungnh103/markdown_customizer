@@ -31,22 +31,34 @@ const ImageFormatter = () => {
         <div>
           <label>
             Markdown URL
+            <br />
             <input type="text" value={rawUrl} onChange={handleInputUrl} />
           </label>
         </div>
 
+        <br />
+
         <div>
           <label>
-            Width
-            <input type="number" value={imageWidth} onChange={handleInputWidth} />
+            Width (optional)
+            <br />
+            <input
+              onChange={handleInputWidth}
+              style={{ width: '50px' }}
+              type="number"
+              value={imageWidth}
+            />
           </label>
         </div>
 
         <input type="submit" value='Format' disabled={rawUrl.length === 0} />
       </form>
 
+      <br />
+
       <div>
         Result
+        <br />
         <input type="text" disabled value={formattedImageTag} />
         <button disabled={formattedImageTag.length === 0} onClick={handleCopy}>
           Copy

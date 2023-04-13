@@ -41,14 +41,28 @@ const TableFormatter = () => {
         <div>
           <label>
             Number of items per row
-            <input type="number" value={itemsPerRow} onChange={handleInputNumber} />
+            <br />
+            <input
+              onChange={handleInputNumber}
+              style={{ width: '50px' }}
+              type="number"
+              value={itemsPerRow}
+            />
           </label>
         </div>
+
+        <br />
 
         <div>
           <label>
             Content
-            <textarea onChange={handleInputData} cols={50} rows={10}></textarea>
+            <br />
+            <textarea
+              onChange={handleInputData}
+              cols={50}
+              rows={10}
+              placeholder='Paste image markdown URLs here, those are in format ![image](https://user-images.githubusercontent.com/...)'
+            ></textarea>
           </label>
         </div>
 
@@ -59,7 +73,9 @@ const TableFormatter = () => {
 
       <div>
         Result
+        <br />
         <textarea value={formattedData} disabled cols={50} rows={10}></textarea>
+        <br />
         <button disabled={formattedData.length === 0} onClick={handleCopy}>Copy</button>
       </div>
 
@@ -67,6 +83,7 @@ const TableFormatter = () => {
 
       <div>
         Preview
+        <br />
         <table>
           <tbody>
             {extractedList.map((row, index) =>
