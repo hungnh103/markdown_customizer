@@ -58,7 +58,7 @@ const TableFormatter = () => {
       <br />
 
       <div>
-        Output
+        Result
         <textarea value={formattedData} disabled cols={50} rows={10}></textarea>
         <button disabled={formattedData.length === 0} onClick={handleCopy}>Copy</button>
       </div>

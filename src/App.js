@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 
 import TabPanel from 'lib/TabPanel'
 import TableFormatter from 'containers/TableFormatter'
+import ImageFormatter from 'containers/ImageFormatter'
 
 function a11yProps(index) {
   return {
@@ -34,7 +35,7 @@ function App() {
         <TableFormatter />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Item Two
+        <ImageFormatter />
       </TabPanel>
     </Box>
   );
