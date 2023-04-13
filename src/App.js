@@ -5,6 +5,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 
 import TabPanel from 'lib/TabPanel'
+import TableFormatter from 'containers/TableFormatter'
 
 function a11yProps(index) {
   return {
@@ -30,7 +31,7 @@ function App() {
       </Box>
 
       <TabPanel value={value} index={0}>
-        Item One
+        <TableFormatter />
       </TabPanel>
       <TabPanel value={value} index={1}>
         Item Two
