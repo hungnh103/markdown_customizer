@@ -11,7 +11,7 @@ const TableFormatter = () => {
   }
 
   const handleInputData = (e) => {
-    setItemList(e.target.value.split('\n'))
+    setItemList(e.target.value.trim().split('\n'))
   }
 
   const formatData = (e) => {
@@ -84,7 +84,12 @@ const TableFormatter = () => {
       <div>
         Preview
         <br />
-        <table>
+        <table
+          border={1}
+          style={{ background: 'lightgrey'}}
+          cellSpacing={0}
+          cellPadding={10}
+        >
           <tbody>
             {extractedList.map((row, index) =>
               <tr key={index}>
