@@ -15,3 +15,14 @@ code {
 html {
   width: 500px;
 }
+
+.table-formatter__form,
+.table-formatter__result,
+.image-formatter__form {
+  margin-bottom: 15px;
+}
+
+.table-formatter__preview label {
+  display: inline-block;
+  margin-bottom: 6px;
+}
