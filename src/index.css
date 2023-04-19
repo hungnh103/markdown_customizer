@@ -26,3 +26,8 @@ html {
   display: inline-block;
   margin-bottom: 6px;
 }
+
+.image-formatter__form-width-field {
+  display: flex;
+  align-items: center;
+}
