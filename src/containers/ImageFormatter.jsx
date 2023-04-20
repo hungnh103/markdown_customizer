@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 const ImageFormatter = () => {
   const [rawUrl, setRawUrl] = useState('')
-  const [imageWidth, setImageWidth] = useState('600')
+  const [imageWidth, setImageWidth] = useState('800')
+  const [disableWidth, setDisableWidth] = useState(false)
   const [formattedImageTag, setFormattedImageTag] = useState('')
 
   const handleInputUrl = (e) => {
@@ -19,12 +23,16 @@ const ImageFormatter = () => {
     e.preventDefault()
 
     const imgSrc = rawUrl.match(/\((.+)\)/)[1]
-    const imgTag = `<img src='${imgSrc}' alt='screenshot' ${imageWidth && `width='${imageWidth}'`} />`
+    const imgTag = `<img src='${imgSrc}' alt='info' ${!disableWidth && imageWidth ? `width='${imageWidth}' ` : ''}/>`
     setFormattedImageTag(imgTag)
   }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(formattedImageTag)
+  }
+
+  const handleToggleWidthOption = () => {
+    setDisableWidth(!disableWidth)
   }
 
   return (
@@ -40,15 +48,30 @@ const ImageFormatter = () => {
             margin='dense'
           />
 
-          <TextField
-            label="Width"
-            type="number"
-            value={imageWidth}
-            onChange={handleInputWidth}
-            InputProps={{ inputProps: { min: 100 } }}
-            sx={{ width: 100 }}
-            margin='normal'
-          />
+          <div className='image-formatter__form-width-field'>
+            <FormGroup>
+              <FormControlLabel
+                label="Enable width"
+                control={
+                  <Checkbox
+                    checked={!disableWidth}
+                    onChange={handleToggleWidthOption}
+                  />
+                }
+              />
+            </FormGroup>
+
+            <TextField
+              type="number"
+              value={imageWidth}
+              onChange={handleInputWidth}
+              InputProps={{ inputProps: { min: 100 } }}
+              sx={{ width: 100 }}
+              margin='normal'
+              disabled={disableWidth}
+            />
+          </div>
+
 
           <div>
             <Button
