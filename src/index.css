@@ -16,10 +16,35 @@ html {
   width: 500px;
 }
 
+textarea {
+  resize: vertical;
+}
+
 .table-formatter__form,
 .table-formatter__result,
 .image-formatter__form {
   margin-bottom: 15px;
+}
+
+.table-formatter__form-title-field {
+  display: flex;
+  margin: 5px 0 8px;
+}
+
+.table-formatter__form-title-field .titles-input {
+  width: 62%;
+  padding: 16.5px 14px;
+  border: 1px solid #c4c4c4;
+  border-radius: 4px;
+}
+
+.table-formatter__form-title-field .titles-input:hover {
+  border-color: black;
+}
+
+.table-formatter__form-title-field .titles-input:focus {
+  outline: none;
+  border-color: #1a76d2;
 }
 
 .table-formatter__preview label {

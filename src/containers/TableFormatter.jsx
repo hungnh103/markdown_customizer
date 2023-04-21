@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import TextareaAutosize from '@mui/base/TextareaAutosize';
 
 const TableFormatter = () => {
   const [itemsPerRow, setItemsPerRow] = useState(3)
   const [itemList, setItemList] = useState([])
+  const [titleIncluded, setTitleIncluded] = useState(false)
+  const [customTitles, setCustomTitles] = useState('SP version,PC version')
   const [formattedData, setFormattedData] = useState('')
   const [extractedList, setExtractedList] = useState([])
 
@@ -18,9 +24,10 @@ const TableFormatter = () => {
 
   const formatData = (e) => {
     e.preventDefault()
+
     const numRows = Math.ceil(itemList.length / itemsPerRow)
     const cloneItemList = itemList.slice()
-    let tempExtractedList = []
+    const tempExtractedList = []
 
     const formattedList = Array(numRows).fill(null).map(_e => {
       const group = cloneItemList.splice(0, itemsPerRow)
@@ -32,6 +39,18 @@ const TableFormatter = () => {
       )
       return `| ${group.concat(complementaryItems).join(' | ')} |`
     })
+
+    if (titleIncluded && !!customTitles) {
+      const selectedTitles = customTitles.split(',').splice(0, itemsPerRow)
+      formattedList.unshift(
+        `| ${selectedTitles.concat(Array(itemsPerRow - selectedTitles.length)).join(' | ')} |`
+      )
+
+      tempExtractedList.unshift(
+        selectedTitles.concat(Array(itemsPerRow - selectedTitles.length).fill(''))
+      )
+    }
+
     formattedList.splice(1, 0, `| ${Array(itemsPerRow).fill('-').join(' | ')} |`)
 
     setFormattedData(formattedList.join('\n'))
@@ -65,6 +84,28 @@ const TableFormatter = () => {
             helperText={<span>Paste image markdown URLs, those are in format<br />![image](https://user-images.githubusercontent.com/...)</span>}
             margin='dense'
           />
+
+          <div className='table-formatter__form-title-field'>
+            <FormGroup>
+              <FormControlLabel
+                label="Custom titles"
+                control={
+                  <Checkbox
+                    checked={titleIncluded}
+                    onChange={() => setTitleIncluded(!titleIncluded)}
+                  />
+                }
+              />
+            </FormGroup>
+
+            <TextareaAutosize
+              className='titles-input'
+              placeholder='Titles list with comma delimeter'
+              disabled={!titleIncluded}
+              value={customTitles}
+              onChange={e => setCustomTitles(e.target.value)}
+            />
+          </div>
 
           <Button
             variant="contained"
@@ -112,7 +153,15 @@ const TableFormatter = () => {
                 <tr key={r_index}>
                   {row.map((cell, c_index) =>
                     <td key={c_index}>
-                      {cell ? <img src={cell} alt={'screenshot'} width={100} /> : ''}
+                      {cell ? (
+                        <>
+                          {r_index === 0 && !cell.startsWith('https') ? (
+                            `${cell}`
+                          ) : (
+                            <img src={cell} alt={'screenshot'} width={100} />
+                          )}
+                        </>
+                      ) : ('')}
                     </td>
                   )}
                 </tr>

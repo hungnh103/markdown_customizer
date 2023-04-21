@@ -72,7 +72,6 @@ const ImageFormatter = () => {
             />
           </div>
 
-
           <div>
             <Button
               variant="contained"
