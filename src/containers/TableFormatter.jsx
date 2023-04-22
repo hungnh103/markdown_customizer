@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -8,28 +8,54 @@ import TextareaAutosize from '@mui/base/TextareaAutosize';
 
 const TableFormatter = () => {
   const [itemsPerRow, setItemsPerRow] = useState(3)
-  const [itemList, setItemList] = useState([])
+  const [content, setContent] = useState('')
   const [titleIncluded, setTitleIncluded] = useState(false)
   const [customTitles, setCustomTitles] = useState('SP version,PC version')
   const [formattedData, setFormattedData] = useState('')
   const [extractedList, setExtractedList] = useState([])
 
+  useEffect(() => {
+    setItemsPerRow(Number(localStorage.getItem('mc_itemsPerRow')) || itemsPerRow)
+    setContent(localStorage.getItem('mc_content') || content)
+    setTitleIncluded(/^true$/i.test(localStorage.getItem('mc_titleIncluded')))
+    setCustomTitles(localStorage.getItem('mc_customTitles') || customTitles)
+    setFormattedData(localStorage.getItem('mc_formattedData') || formattedData)
+    setExtractedList(JSON.parse(localStorage.getItem('mc_extractedList')) || extractedList)
+  }, [])
+
   const handleInputNumber = (e) => {
-    setItemsPerRow(Number(e.target.value))
+    const number = e.target.value
+    localStorage.setItem('mc_itemsPerRow', number)
+    setItemsPerRow(Number(number))
   }
 
-  const handleInputData = (e) => {
-    setItemList(e.target.value.match(/(!\[[\w-\.]*\]\(https:\/\/[\w-\.\/]+\))/g))
+  const handleInputContent = (e) => {
+    const tableData = e.target.value
+    localStorage.setItem('mc_content', tableData)
+    setContent(tableData)
+  }
+
+  const toggleCustomTitles = () => {
+    const toggleFlag = !titleIncluded
+    localStorage.setItem('mc_titleIncluded', toggleFlag)
+    setTitleIncluded(toggleFlag)
+  }
+
+  const handleInputTitles = (e) => {
+    const titles = e.target.value
+    localStorage.setItem('mc_customTitles', titles)
+    setCustomTitles(titles)
   }
 
   const formatData = (e) => {
     e.preventDefault()
 
+    const itemList = content.match(/(!\[[\w-\.]*\]\(https:\/\/[\w-\.\/]+\))/g) || []
     const numRows = Math.ceil(itemList.length / itemsPerRow)
     const cloneItemList = itemList.slice()
     const tempExtractedList = []
 
-    const formattedList = Array(numRows).fill(null).map(_e => {
+    let formattedList = Array(numRows).fill(null).map(_e => {
       const group = cloneItemList.splice(0, itemsPerRow)
       const complementaryItems = Array(itemsPerRow - group.length)
 
@@ -52,8 +78,12 @@ const TableFormatter = () => {
     }
 
     formattedList.splice(1, 0, `| ${Array(itemsPerRow).fill('-').join(' | ')} |`)
+    formattedList = formattedList.join('\n')
 
-    setFormattedData(formattedList.join('\n'))
+    localStorage.setItem('mc_formattedData', formattedList)
+    localStorage.setItem('mc_extractedList', JSON.stringify(tempExtractedList))
+
+    setFormattedData(formattedList)
     setExtractedList(tempExtractedList)
   }
 
@@ -66,23 +96,30 @@ const TableFormatter = () => {
       <div className='table-formatter__form'>
         <form onSubmit={formatData}>
           <TextField
+            InputProps={{ inputProps: { min: 1 } }}
             label="Items per row *"
+            margin='dense'
+            onChange={handleInputNumber}
+            sx={{ width: 110 }}
             type="number"
             value={itemsPerRow}
-            onChange={handleInputNumber}
-            InputProps={{ inputProps: { min: 1 } }}
-            sx={{ width: 110 }}
-            margin='dense'
           />
 
           <TextField
-            label="Content *"
-            multiline
-            rows={3}
-            onChange={handleInputData}
             fullWidth
-            helperText={<span>Paste image markdown URLs, those are in format<br />![image](https://user-images.githubusercontent.com/...)</span>}
+            label="Content *"
             margin='dense'
+            multiline
+            onChange={handleInputContent}
+            rows={5}
+            value={content}
+            helperText={
+              <span>
+                Paste image markdown URLs, those are in format
+                <br />
+                ![image](https://user-images.githubusercontent.com/...)
+              </span>
+            }
           />
 
           <div className='table-formatter__form-title-field'>
@@ -92,7 +129,7 @@ const TableFormatter = () => {
                 control={
                   <Checkbox
                     checked={titleIncluded}
-                    onChange={() => setTitleIncluded(!titleIncluded)}
+                    onChange={toggleCustomTitles}
                   />
                 }
               />
@@ -100,18 +137,18 @@ const TableFormatter = () => {
 
             <TextareaAutosize
               className='titles-input'
-              placeholder='Titles list with comma delimeter'
               disabled={!titleIncluded}
+              onChange={handleInputTitles}
+              placeholder='Titles list with comma delimeter'
               value={customTitles}
-              onChange={e => setCustomTitles(e.target.value)}
             />
           </div>
 
           <Button
-            variant="contained"
+            disabled={!content}
             size="small"
             type='submit'
-            disabled={itemList.length === 0}
+            variant="contained"
           >
             Format
           </Button>
@@ -120,20 +157,21 @@ const TableFormatter = () => {
 
       <div className='table-formatter__result'>
         <TextField
-          label="Result"
-          multiline
-          rows={3}
           disabled
           fullWidth
-          value={formattedData}
+          label="Result"
           margin='dense'
+          multiline
+          rows={5}
+          value={formattedData}
         />
 
         <Button
-          variant="contained"
-          size="small"
           disabled={formattedData.length === 0}
           onClick={handleCopy}
+          size="small"
+          variant="contained"
+          color='secondary'
         >
           Copy
         </Button>
@@ -144,9 +182,9 @@ const TableFormatter = () => {
         {extractedList.length > 0 && (
           <table
             border={1}
-            style={{ background: 'lightgrey'}}
-            cellSpacing={0}
             cellPadding={10}
+            cellSpacing={0}
+            style={{ background: 'lightgrey'}}
           >
             <tbody>
               {extractedList.map((row, r_index) =>
