@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -7,23 +7,44 @@ import Checkbox from '@mui/material/Checkbox';
 
 const ImageFormatter = () => {
   const [rawUrl, setRawUrl] = useState('')
-  const [imageWidth, setImageWidth] = useState('800')
   const [disableWidth, setDisableWidth] = useState(false)
+  const [imageWidth, setImageWidth] = useState('800')
   const [formattedImageTag, setFormattedImageTag] = useState('')
 
+  useEffect(() => {
+    setRawUrl(localStorage.getItem('mc_rawUrl') || rawUrl)
+    setDisableWidth(/^true$/i.test(localStorage.getItem('mc_disableWidth')))
+    setImageWidth(localStorage.getItem('mc_imageWidth') || imageWidth)
+    setFormattedImageTag(localStorage.getItem('mc_formattedImageTag') || formattedImageTag)
+  }, [])
+
   const handleInputUrl = (e) => {
-    setRawUrl(e.target.value)
+    const url = e.target.value
+    localStorage.setItem('mc_rawUrl', url)
+    setRawUrl(url)
+  }
+
+  const handleToggleWidthOption = () => {
+    const toggleFlag = !disableWidth
+    localStorage.setItem('mc_disableWidth', toggleFlag)
+    setDisableWidth(toggleFlag)
   }
 
   const handleInputWidth = (e) => {
-    setImageWidth(e.target.value)
+    const width = e.target.value
+    localStorage.setItem('mc_imageWidth', width)
+    setImageWidth(width)
   }
 
   const formatUrl = (e) => {
     e.preventDefault()
 
-    const imgSrc = rawUrl.match(/\((.+)\)/)[1]
-    const imgTag = `<img src='${imgSrc}' alt='info' ${!disableWidth && imageWidth ? `width='${imageWidth}' ` : ''}/>`
+    const imgSrc = (rawUrl.match(/\((.+)\)/) || [])[1] || ''
+    const imgTag = imgSrc
+      ? `<img alt='info' src='${imgSrc}' ${!disableWidth && imageWidth ? `width='${imageWidth}' ` : ''}/>`
+      : ''
+
+    localStorage.setItem('mc_formattedImageTag', imgTag)
     setFormattedImageTag(imgTag)
   }
 
@@ -31,21 +52,17 @@ const ImageFormatter = () => {
     navigator.clipboard.writeText(formattedImageTag)
   }
 
-  const handleToggleWidthOption = () => {
-    setDisableWidth(!disableWidth)
-  }
-
   return (
     <div className='image-formatter'>
       <div className='image-formatter__form'>
         <form onSubmit={formatUrl}>
           <TextField
-            label="Markdown image URL *"
             fullWidth
-            variant="outlined"
-            value={rawUrl}
-            onChange={handleInputUrl}
+            label="Markdown image URL *"
             margin='dense'
+            onChange={handleInputUrl}
+            value={rawUrl}
+            variant="outlined"
           />
 
           <div className='image-formatter__form-width-field'>
@@ -74,10 +91,10 @@ const ImageFormatter = () => {
 
           <div>
             <Button
-              variant="contained"
+              disabled={rawUrl.length === 0}
               size="small"
               type='submit'
-              disabled={rawUrl.length === 0}
+              variant="contained"
             >
               Format
             </Button>
@@ -87,19 +104,20 @@ const ImageFormatter = () => {
 
       <div>
         <TextField
-          label="Result"
-          fullWidth
-          variant="outlined"
-          value={formattedImageTag}
           disabled
+          fullWidth
+          label="Result"
           margin='normal'
+          value={formattedImageTag}
+          variant="outlined"
         />
 
         <Button
-          variant="contained"
-          size="small"
+          color='secondary'
           disabled={formattedImageTag.length === 0}
           onClick={handleCopy}
+          size="small"
+          variant="contained"
         >
           Copy
         </Button>
