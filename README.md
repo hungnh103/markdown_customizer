@@ -12,3 +12,10 @@ For production build, execute:
 ```
 yarn build
 ```
+
+## References
+Documentation for Chrome extensions developers:
+https://developer.chrome.com/docs/extensions/
+
+Official samples for Chrome Extensions:
+https://github.com/GoogleChrome/chrome-extensions-samples
