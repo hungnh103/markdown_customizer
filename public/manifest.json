@@ -2,14 +2,22 @@
   "manifest_version": 3,
   "name": "Markdown Customizer",
   "description": "Open source tool for customizing markdown",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "action": {
     "default_popup": "index.html",
     "default_icon": "images/icon.png"
   },
+  "permissions": ["contextMenus", "tabs", "storage"],
   "commands": {
     "_execute_action": {
       "suggested_key": "Alt+Shift+M"
     }
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png"
+  },
+  "background": {
+    "service_worker": "background.js"
   }
 }

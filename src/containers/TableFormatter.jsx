@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+/*global chrome*/
+
+import { useEffect, useRef, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -14,9 +16,19 @@ const TableFormatter = () => {
   const [formattedData, setFormattedData] = useState('')
   const [extractedList, setExtractedList] = useState([])
 
+  const rawData = useRef()
+
   useEffect(() => {
     setItemsPerRow(Number(localStorage.getItem('mc_itemsPerRow')) || itemsPerRow)
-    setContent(localStorage.getItem('mc_content') || content)
+
+    if (chrome.storage === undefined) {
+      setContent(localStorage.getItem('mc_content') || content)
+    } else {
+      chrome.storage.local.get(["mc_content"]).then((result) => {
+        setContent(result.mc_content || content)
+      });
+    }
+
     setTitleIncluded(/^true$/i.test(localStorage.getItem('mc_titleIncluded')))
     setCustomTitles(localStorage.getItem('mc_customTitles') || customTitles)
     setFormattedData(localStorage.getItem('mc_formattedData') || formattedData)
@@ -31,8 +43,15 @@ const TableFormatter = () => {
 
   const handleInputContent = (e) => {
     const tableData = e.target.value
-    localStorage.setItem('mc_content', tableData)
-    setContent(tableData)
+
+    if (chrome.storage === undefined) {
+      localStorage.setItem('mc_content', tableData)
+      setContent(tableData)
+    } else {
+      chrome.storage.local.set({ 'mc_content': tableData }).then(() => {
+        setContent(tableData)
+      });
+    }
   }
 
   const toggleCustomTitles = () => {
@@ -85,10 +104,12 @@ const TableFormatter = () => {
 
     setFormattedData(formattedList)
     setExtractedList(tempExtractedList)
+    rawData.current.select()
   }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(formattedData)
+    rawData.current.select()
   }
 
   return (
@@ -106,6 +127,8 @@ const TableFormatter = () => {
           />
 
           <TextField
+            inputRef={rawData}
+            autoFocus
             fullWidth
             label="Content *"
             margin='dense'
