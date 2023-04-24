@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+/*global chrome*/
+
+import { useEffect, useRef, useState } from 'react'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import FormGroup from '@mui/material/FormGroup';
@@ -11,7 +13,17 @@ const ImageFormatter = () => {
   const [imageWidth, setImageWidth] = useState('800')
   const [formattedImageTag, setFormattedImageTag] = useState('')
 
+  const rawData = useRef()
+
   useEffect(() => {
+    if (chrome.storage === undefined) {
+      setRawUrl(localStorage.getItem('mc_rawUrl') || rawUrl)
+    } else {
+      chrome.storage.local.get(["mc_rawUrl"]).then((result) => {
+        setRawUrl(result.mc_rawUrl || rawUrl)
+      });
+    }
+
     setRawUrl(localStorage.getItem('mc_rawUrl') || rawUrl)
     setDisableWidth(/^true$/i.test(localStorage.getItem('mc_disableWidth')))
     setImageWidth(localStorage.getItem('mc_imageWidth') || imageWidth)
@@ -20,8 +32,15 @@ const ImageFormatter = () => {
 
   const handleInputUrl = (e) => {
     const url = e.target.value
-    localStorage.setItem('mc_rawUrl', url)
-    setRawUrl(url)
+
+    if (chrome.storage === undefined) {
+      localStorage.setItem('mc_rawUrl', url)
+      setRawUrl(url)
+    } else {
+      chrome.storage.local.set({ 'mc_rawUrl': url }).then(() => {
+        setRawUrl(url)
+      });
+    }
   }
 
   const handleToggleWidthOption = () => {
@@ -46,10 +65,12 @@ const ImageFormatter = () => {
 
     localStorage.setItem('mc_formattedImageTag', imgTag)
     setFormattedImageTag(imgTag)
+    rawData.current.select()
   }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(formattedImageTag)
+    rawData.current.select()
   }
 
   return (
@@ -57,6 +78,8 @@ const ImageFormatter = () => {
       <div className='image-formatter__form'>
         <form onSubmit={formatUrl}>
           <TextField
+            inputRef={rawData}
+            autoFocus
             fullWidth
             label="Markdown image URL *"
             margin='dense'

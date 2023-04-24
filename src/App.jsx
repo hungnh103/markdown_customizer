@@ -1,4 +1,6 @@
-import { useState } from 'react'
+/*global chrome*/
+
+import { useEffect, useState } from 'react'
 
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -18,8 +20,27 @@ function a11yProps(index) {
 function App() {
   const [value, setValue] = useState(0);
 
+  useEffect(() => {
+    if (chrome.storage === undefined) {
+      setValue(Number(localStorage.getItem('mc_value')))
+    } else {
+      chrome.storage.local.get(['itemId']).then((result) => {
+        if (result.itemId === 'tableTab') setValue(0)
+        if (result.itemId === 'imageTab') setValue(1)
+      });
+    }
+  }, [])
+
   const handleChange = (_event, newValue) => {
-    setValue(newValue);
+    if (chrome.storage === undefined) {
+      localStorage.setItem('mc_value', newValue)
+      setValue(newValue);
+    } else {
+      const newId = newValue === 0 ? 'tableTab' : 'imageTab'
+      chrome.storage.local.set({ 'itemId': newId }).then(() => {
+        setValue(newValue);
+      });
+    }
   };
 
   return (
