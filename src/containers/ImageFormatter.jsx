@@ -34,13 +34,14 @@ const ImageFormatter = () => {
     const url = e.target.value
 
     if (chrome.storage === undefined) {
+      // local environment
       localStorage.setItem('mc_rawUrl', url)
-      setRawUrl(url)
     } else {
-      chrome.storage.local.set({ 'mc_rawUrl': url }).then(() => {
-        setRawUrl(url)
-      });
+      // production environment
+      chrome.storage.local.set({ 'mc_rawUrl': url })
     }
+
+    setRawUrl(url)
   }
 
   const handleToggleWidthOption = () => {
@@ -58,7 +59,7 @@ const ImageFormatter = () => {
   const formatUrl = (e) => {
     e.preventDefault()
 
-    const imgSrc = (rawUrl.match(/\((.+)\)/) || [])[1] || ''
+    const imgSrc = (rawUrl.match(/!\[.*\]\((.+)\)/) || [])[1] || ''
     const imgTag = imgSrc
       ? `<img alt='info' src='${imgSrc}' ${!disableWidth && imageWidth ? `width='${imageWidth}' ` : ''}/>`
       : ''

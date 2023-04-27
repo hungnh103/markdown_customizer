@@ -45,13 +45,14 @@ const TableFormatter = () => {
     const tableData = e.target.value
 
     if (chrome.storage === undefined) {
+      // local environment
       localStorage.setItem('mc_content', tableData)
-      setContent(tableData)
     } else {
-      chrome.storage.local.set({ 'mc_content': tableData }).then(() => {
-        setContent(tableData)
-      });
+      // production environment
+      chrome.storage.local.set({ 'mc_content': tableData });
     }
+
+    setContent(tableData)
   }
 
   const toggleCustomTitles = () => {
@@ -69,7 +70,7 @@ const TableFormatter = () => {
   const formatData = (e) => {
     e.preventDefault()
 
-    const itemList = content.match(/(!\[[\w-\.]*\]\(https:\/\/[\w-\.\/]+\))/g) || []
+    const itemList = content.match(/(!\[.*\]\(https:\/\/[\w\-\.\/]+\))/g) || []
     const numRows = Math.ceil(itemList.length / itemsPerRow)
     const cloneItemList = itemList.slice()
     const tempExtractedList = []
@@ -79,7 +80,7 @@ const TableFormatter = () => {
       const complementaryItems = Array(itemsPerRow - group.length)
 
       tempExtractedList.push(
-        group.map(e => e.match(/\((.+)\)/)[1])
+        group.map(e => e.match(/!\[.*\]\((.+)\)/)[1])
              .concat(complementaryItems.fill(''))
       )
       return `| ${group.concat(complementaryItems).join(' | ')} |`
