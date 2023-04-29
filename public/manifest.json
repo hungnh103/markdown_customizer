@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Markdown Customizer",
   "description": "Open source tool for customizing markdown",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "action": {
     "default_popup": "index.html",
     "default_icon": "images/icon.png"
