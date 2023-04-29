@@ -70,7 +70,7 @@ const TableFormatter = () => {
   const formatData = (e) => {
     e.preventDefault()
 
-    const itemList = content.match(/(!\[.*\]\(https:\/\/[\w\-\.\/]+\))/g) || []
+    const itemList = content.match(/(!\[[\s\w\-.{}[\]()]*\]\(https:\/\/[\w\-./]+\))/g) || []
     const numRows = Math.ceil(itemList.length / itemsPerRow)
     const cloneItemList = itemList.slice()
     const tempExtractedList = []
