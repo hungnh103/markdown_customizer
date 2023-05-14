@@ -202,7 +202,7 @@ const TableFormatter = () => {
       </div>
 
       <div className='table-formatter__preview'>
-        <label>Preview</label>
+        <label>Preview (only display images from public repositories)</label>
         {extractedList.length > 0 && (
           <table
             border={1}
